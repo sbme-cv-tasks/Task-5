@@ -76,7 +76,7 @@ class ROC_Curve:
         mean_tpr[-1] = 1.0
 
         # Compute area under the macro-averaged ROC curve.
-        auc = np.trapz(mean_tpr, mean_fpr)
+        auc = np.trapezoid(mean_tpr, mean_fpr)
 
         return mean_fpr, mean_tpr, auc
 
