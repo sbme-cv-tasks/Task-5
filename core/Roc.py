@@ -8,9 +8,8 @@ class ROC_Curve:
         self.model = model
 
     def get_scores(self, X):
-        # Note: if your model returns distances, negate decision_function(X)
-        # so the values are treated like confidence scores.
-        return self.model.decision_function(X)
+        # Return probability estimates for each class
+        return self.model.predict_proba(X)
 
     def compute_binary_roc(self, y_true, y_scores):
         # Sort scores from highest to lowest.
@@ -76,21 +75,24 @@ class ROC_Curve:
         mean_tpr[0] = 0.0
         mean_tpr[-1] = 1.0
 
-        return mean_fpr, mean_tpr
+        # Compute area under the macro-averaged ROC curve.
+        auc = np.trapz(mean_tpr, mean_fpr)
+
+        return mean_fpr, mean_tpr, auc
 
     def plot_roc(self, X, y, save_path=None):
-        fpr, tpr = self.compute_macro_roc(X, y)
+        fpr, tpr, auc = self.compute_macro_roc(X, y)
 
         plt.figure()
 
         # Plot the ROC curve in blue.
-        plt.plot(fpr, tpr, lw=3, label="Macro-Average ROC", color='dodgerblue')
+        plt.plot(fpr, tpr, lw=3, label=f"Macro-Average ROC (AUC = {auc:.3f})", color='dodgerblue')
         
         plt.plot([0, 1], [0, 1], 'k--')
 
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
-        plt.title("ROC Curve)")
+        plt.title("ROC Curve")
         plt.legend(loc="lower right")
 
         # Add a light dashed grid for readability.
@@ -99,6 +101,7 @@ class ROC_Curve:
         if save_path:
             plt.savefig(save_path)
             plt.close()
-            return save_path
+            return save_path, auc
 
         plt.show()
+        return auc
