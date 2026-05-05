@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.controller = MainController()
+        self._accuracy_cache = None
 
         self.ui.upload_btn.clicked.connect(self.upload_image)
         self.ui.image_label.mousePressEvent = self.label_clicked
@@ -34,7 +35,10 @@ class MainWindow(QMainWindow):
 
     def update_accuracy(self):
         """Update and display model accuracy."""
-        accuracy = self.controller.calculate_accuracy()
+        if self._accuracy_cache is None:
+            self._accuracy_cache = self.controller.calculate_accuracy()
+
+        accuracy = self._accuracy_cache
         accuracy_percent = accuracy * 100
         self.ui.accuracy_info.setText(f"Model Accuracy: {accuracy_percent:.2f}%")
 
